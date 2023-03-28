@@ -1,10 +1,3 @@
-// Load sidebar
-
-fetch('/sidebar.html')
-	.then(response => response.text())
-	.then(sidebar => document.getElementById("sidebar").innerHTML = sidebar)
-
-
 // Set footer text
 
 let footer_lines = [
