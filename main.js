@@ -1,3 +1,12 @@
+// Load sidebar
+
+fetch('/sidebar.html')
+	.then(response => response.text())
+	.then(sidebar => document.getElementById("sidebar").innerHTML = sidebar)
+
+
+// Set footer text
+
 let footer_lines = [
 	"do i have \"retro swag\" yet?",
 	"now *that's* what i call ash taylor.",
