@@ -8,7 +8,6 @@ body {
 	background-image: url("starrysky.png");
 	background-attachment: fixed;
 	margin: 0px;
-	height: 100%;
 }
 
 b {
@@ -34,7 +33,6 @@ b {
 
 .main {
 	display: flex;
-	max-height: 100%;
 }
 
 .main-item {
