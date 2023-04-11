@@ -43,6 +43,10 @@ b {
 	padding-right: 10px;
 }
 
+#page-content {
+	padding-left: 50px; 
+	padding-right: 50px;
+}
 
 h1 {
 	margin: 0;
@@ -61,6 +65,19 @@ a {
 
 * {
 	box-sizing: border-box;
+}
+
+ul.navbar {
+	list-style-type: none;
+	padding-left: 0px;
+}
+
+.navbar li {
+	display: inline-block;
+	width: 24%;
+	text-align: center;
+	text-shadow: 0 0 10px black;
+	font-weight: 600;
 }
 
 .footer {
@@ -87,4 +104,12 @@ a {
 	top: 0;
 	padding-top: 30px;
 	padding-bottom: 30px;
+}
+
+iframe {
+	border-radius: 10px;
+}
+
+img {
+	border-radius: 10px;
 }
