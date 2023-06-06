@@ -5,7 +5,6 @@ body {
 	font-weight: lighter;
 	font-family: "Nunito Sans";
 	text-align: center;
-	background-image: url("starrysky.png");
 	background-attachment: fixed;
 	margin: 0px;
 }
@@ -46,6 +45,17 @@ b {
 #page-content {
 	padding-left: 50px; 
 	padding-right: 50px;
+	flex-grow: 1;
+	max-width: 950px;
+}
+
+#post-content p {
+	text-align: justify;
+}
+#post-content img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 h1 {
@@ -67,9 +77,48 @@ a {
 	box-sizing: border-box;
 }
 
-ul.navbar {
+ul {
 	list-style-type: none;
 	padding-left: 0px;
+}
+
+#page-content ul li {
+	margin-bottom: 10px;
+}
+
+#post-content ul {
+	list-style-type: disc;
+	text-align: left;
+	padding: 0px 50px;
+}
+
+.post-thumbnail-link {
+	display: flex; justify-content: center; align-items: center;
+}
+
+.post-thumbnail {
+	object-fit: cover; 
+	width: 100px; 
+	height: 100px; 
+	margin-right: 10px; 
+	margin-top: auto; 
+	margin-bottom: auto;
+}
+
+.post-link {
+	text-align: left;
+	font-size: 16px;
+	display: flex;
+	flex-flow: row nowrap;
+	background: rgb(9, 9, 27);
+	padding: 10px;
+	border-radius: 10px;
+	span {
+		color: #acacac;
+	}
+	p {
+		margin-top: 0px;
+	}
 }
 
 .navbar li {
@@ -94,7 +143,7 @@ ul.navbar {
 }
 
 .sidebar {
-	width: 100%; 
+	min-width: 200px;
 	margin-left: 10px;
 }
 

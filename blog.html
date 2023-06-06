@@ -1,0 +1,27 @@
+---
+layout: default
+title: blog
+---
+
+<div id="page-content" class="main-item">
+	<h2><i>latest posting</i></h2>
+	
+	<ul>
+		{% for post in site.posts %}
+			<li class="post-link">
+				<a href="{{ post.url }}" class="post-thumbnail-link">
+					<img src="{{ post.image }}" class="post-thumbnail"/>
+				</a>
+				<div>
+					<h3 style="margin-bottom: 0px;"><a href="{{ post.url }}">{{ post.title }}</a></h3>
+					{% assign wordCount = post.content | number_of_words %}
+					<span style="font-weight: 100;">{{ post.date | date: "%-d %B %Y" | downcase }} - {{ wordCount | divided_by: 180 }} min read</span>
+					
+					{{ post.excerpt }}
+				</div>
+			</li>
+		{% endfor %}
+	</ul>
+</div>
+
+{% include sidebar.html %}

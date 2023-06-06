@@ -1,0 +1,442 @@
+<html>
+	<head>
+		<title>introducing the comune programming language - ash taylor?!</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,300;0,400;0,600;0,700;0,900;1,300;1,400;1,600;1,900&display=swap" rel="stylesheet"> 
+		<link rel="stylesheet" href="/assets/css/styles.css">
+	</head>
+
+	<body>
+		<style>
+		body {
+			background-image: url("/assets/images/starrysky.png");
+		}
+		</style>
+
+		<div class="content">
+			<div class="header"><h1>ash taylor?!</h1></div>
+
+			<ul class="navbar"><!-- 
+					These comments prevent the newline from being collapsed
+					into whitespace. Makes it look a little nicer.
+				--><li><a href="/">home</a></li><!--
+				--><li><a href="/projects">projects</a></li><!--
+				--><li><a href="/blog">blog</a></li><!--
+				--><li><a href="/contact">contact</a></li>
+			  </ul>
+
+			<div class="main"><div id="page-content" class="main-item">
+	<div style="padding: 0px 50px;">
+		<h2><i>introducing the comune programming language</i></h2>
+
+		
+
+		<p><i>06 jun 2023 - 18 min read</i></p>
+
+		<img src="/assets/images/blog/pepesilvia.png"/>
+
+		<div id="post-content">
+			<p>so for the better part of a year, i’ve been working on a little side project: my personal semi-hobbyist take on the “C++ successor language” trend that’s emerged over the past couple years, named <a href="https://github.com/comune-lang/comune">comune</a>.</p>
+
+<p>i’m pretty proud of the progress it’s made, but admittedly, my attempts to write up proper documentation have never gotten very far. so for the first blog post on my fancy new hand-rolled site, i thought i’d try and provide a general overview of the goals, design, and implementation of comune.</p>
+
+<p>going over every part of the language in one post would take ages, and i don’t have that kind of attention span, but if there’s interest for it, i’d be happy to take a more in-depth look at specific features in future blog posts.</p>
+
+<h2 id="motivation">motivation</h2>
+
+<p>where?!</p>
+
+<p>oh, you mean behind the language. right.</p>
+
+<p>over the past year or two, it’s become increasingly clear that C++ is simply not fit for purpose anymore (if it ever was). the rise of languages like Rust demonstrates a growing need for stronger safety guarantees and more reliable tooling. and while Rust is an innovative and respectable language in its own right, it has considerable shortcomings of its own that weaken its ability to challenge C++.</p>
+
+<p>to be clear: as a former C++ evangelist, i think Rust is great, and nowadays i use it wherever possible - but i feel it’s held back by some of its early design decisions, as well as being unnecessarily complex in places. it does sometimes leave me yearning for the “anything goes” mentality of C++ - even if Rust is significantly more reliable and user-friendly in the long run.</p>
+
+<p>there’ve been a lot of attempts to replace C++, but none so far have really grabbed me. <a href="https://github.com/carbon-language/carbon-lang">Carbon</a> doesn’t really do it for me; the more i read into it, the more arbitrary its design decisions feel. no disrespect to the people working on it, of course - i’m sure they’re far more experienced in the field than i am - but for me, it just doesn’t really come together into something i can get excited about.</p>
+
+<p>it’s a similar story for the other endeavours. maybe it’s just me being stubborn (i’m pretty sure Carbon got announced just weeks after i had the initial idea for comune, lol) but i still felt motivated to give it a shot myself.</p>
+
+<p>so around july of 2022, i started messing around with some design concepts i’d been cooking up. while i’ve messed around with writing simple parsers and interpreters, i’d never written a full-on compiler before - it seemed like a fun challenge! i decided i’d just get started and see how far i could get.</p>
+
+<p>and well, i still haven’t stopped! somehow!!!</p>
+
+<p>i’ve learned a lot of things about language design and implementation in that time, and after a lot of experimentation and deliberation (and regular input from <a href="https://twitter.com/lostkagamine">Stelle</a>, who plans to work on the standard library), i think we’re honing in on something pretty neat here. and while it’s not at all stable yet, i’m very happy with how much progress has been made.</p>
+
+<p>but hey, i’m getting ahead of myself. let’s go over what comune actually <em>is</em>:</p>
+
+<h2 id="overview">overview</h2>
+
+<p>comune is a compiled, general-purpose programming language with a focus on performance, ergonomics, safety and C++ interop. it offers features like the following:</p>
+
+<ul>
+  <li>a clean, expression-based syntax, styled after C++, but with the fat trimmed</li>
+  <li>parametric polymorphism through traits</li>
+  <li>support for function overloads and specialization</li>
+  <li>first-class tuples and sum types</li>
+  <li>a simple, flexible module system</li>
+  <li>static memory safety (with an <code class="language-plaintext highlighter-rouge">unsafe</code> escape hatch)</li>
+  <li>move semantics, with limited support for borrowchecked “shared-xor-mutable” references</li>
+  <li>support for “open” and “closed” polymorphism, through classes and structs/enums</li>
+  <li>Rust-style “dynamic drop” semantics</li>
+</ul>
+
+<p>the current compiler implementation is written in Rust, with no immediate plans to self-host (trust me, i’ve got enough work on my plate as-is), and it offers very respectable compilation times (so far) thanks to a highly concurrency-oriented architecture.</p>
+
+<p>but this is all pretty abstract so far. let’s go over some actual code, shall we?</p>
+
+<h2 id="some-actual-code">some actual code</h2>
+
+<div class="log"><details open="true"><summary><span>Hide code</span></summary>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">@</span><span class="n">no_mangle</span>
+<span class="kt">int</span> <span class="nf">printf</span><span class="p">(</span><span class="n">u8</span><span class="o">*</span> <span class="n">fmt</span><span class="p">,</span> <span class="p">...);</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">printf</span><span class="p">(</span><span class="n">c</span><span class="s">"Hello world!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+</details></div>
+
+<p>(side note: i’m aware the syntax highlighting is butt-ugly. i’ll get around to fixing it one of these days)</p>
+
+<p>here’s your basic Hello World. note that at time of writing, there’s no real standard library yet - but we don’t need one! the compiler links <code class="language-plaintext highlighter-rouge">libc</code> by default, so we can use good old <code class="language-plaintext highlighter-rouge">printf</code> no problem. note that the <code class="language-plaintext highlighter-rouge">int</code> type here is just an alias for <code class="language-plaintext highlighter-rouge">i32</code> - comune’s basic types all have clearly-defined sizes.</p>
+
+<p>but hey, what’s that <code class="language-plaintext highlighter-rouge">c</code> prefix before the string literal about? well, comune’s string literals are of type <code class="language-plaintext highlighter-rouge">u8[]</code>, not <code class="language-plaintext highlighter-rouge">u8*</code>. let’s remove it and see what happens:</p>
+
+<p><img src="/assets/images/blog/comune_err_0.png" alt="error: no viable overload found for printf(u8[dyn]) - in main.co:5:2" /></p>
+
+<p>(and yep, i <em>am</em> really proud of the error message formatting!)</p>
+
+<p>the problem here is that comune’s built-in strings are <em>slices</em>, AKA pointers with length metadata attached to them (note that unlike Rust, comune doesn’t have a special UTF-8-enforced <code class="language-plaintext highlighter-rouge">str</code> type - although the planned standard library <code class="language-plaintext highlighter-rouge">String</code> type is UTF-8-enabled, and the language’s string literals use it as well)</p>
+
+<p>since these slices carry the length with them, they aren’t null-terminated - which is a problem for C/C++ code that does expect it. so if you want a C-compatible string literal, you use the <code class="language-plaintext highlighter-rouge">c</code> prefix to create a null-terminated <code class="language-plaintext highlighter-rouge">u8*</code> (aka <code class="language-plaintext highlighter-rouge">const char*</code>).</p>
+
+<p>…wow, we’ve just spent a couple hundred words talking about Hello World, haven’t we? i may have underestimated how much there is to go over. let’s speed things up a little with some basic variable and expression syntax:</p>
+
+<div class="log"><details open="true"><summary><span>Hide code</span></summary>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="c1">// variable bindings are immutable by default</span>
+	<span class="kt">int</span> <span class="n">mut</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="n">a</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+
+	<span class="c1">// control flow is expression-based,</span>
+	<span class="c1">// and blocks can have results</span>
+	<span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="k">if</span> <span class="nb">true</span> <span class="p">{</span>
+		<span class="mi">1</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="mi">2</span>
+	<span class="p">};</span>
+	
+	<span class="c1">// deferred initialization is allowed, and the</span>
+	<span class="c1">// compiler statically enforces init-before-use</span>
+	<span class="kt">int</span> <span class="n">c</span><span class="p">;</span>
+
+	<span class="c1">// side note: putting semicolons after block expressions,</span>
+	<span class="c1">// while not required, is still good practice, because if</span>
+	<span class="c1">// you start the next statement with a pointer dereference,</span>
+	<span class="c1">// the parser will misinterpret it as a multiply operator.</span>
+
+	<span class="k">if</span> <span class="nb">true</span> <span class="p">{</span>
+		<span class="n">c</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+	<span class="p">};</span>
+
+	<span class="c1">// error: use of potentially uninitialized variable `c`</span>
+	<span class="n">foo</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+</details></div>
+
+<h3 id="variable-bindings-and-references">variable bindings and references</h3>
+
+<p>comune - shocker - takes after Rust for its concept of variable bindings, with one notable difference: in comune, references are a <em>kind of variable binding</em>, rather than a distinct type.</p>
+
+<p>the syntax for references looks like this:</p>
+
+<div class="log"><details open="true"><summary><span>Hide code</span></summary>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">foo</span><span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// shared reference parameter</span>
+<span class="kt">void</span> <span class="nf">foo</span><span class="p">(</span><span class="kt">int</span> <span class="n">mut</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">);</span> <span class="c1">// mutable reference parameter</span>
+</code></pre></div></div>
+</details></div>
+
+<p>in this sense, they’re closer to C++ references than Rust ones; they’re fully transparent, must be immediately initialized, and can’t be rebound. however, they still provide all the safety guarantees Rust does, and they do have a simple form of lifetimes - but that topic might be worthy of its own blog post.</p>
+
+<p>here’s a summary of the kind of references comune supports, and their safety guarantees (subject to change):</p>
+
+<h4 id="t-the-shared-reference"><code class="language-plaintext highlighter-rouge">T&amp;</code>, the shared reference</h4>
+
+<p>the shared reference is comune’s equivalent to Rust’s <code class="language-plaintext highlighter-rouge">&amp;T</code>, and provides essentially the same guarantees:</p>
+
+<ul>
+  <li>the referenced data is aligned, allocated and initialized</li>
+  <li>the referenced memory will <strong><em>not be mutated</em></strong> while the reference exists</li>
+</ul>
+
+<h4 id="t-mut-the-unique-reference"><code class="language-plaintext highlighter-rouge">T mut&amp;</code>, the unique reference</h4>
+
+<p>similarly, <code class="language-plaintext highlighter-rouge">T mut&amp;</code> is comune’s <code class="language-plaintext highlighter-rouge">&amp;mut T</code>, and provides the following guarantees:</p>
+
+<ul>
+  <li>the referenced data is aligned, allocated and initialized</li>
+  <li>the referenced memory will <strong><em>not be aliased</em></strong> while the reference exists</li>
+</ul>
+
+<h4 id="t-new-the-initializing-reference"><code class="language-plaintext highlighter-rouge">T new&amp;</code>, the initializing reference</h4>
+
+<p><code class="language-plaintext highlighter-rouge">T new&amp;</code> is a special kind of reference used in constructors. it mostly behaves like a <code class="language-plaintext highlighter-rouge">T mut&amp;</code>, with one major distinction: <strong>the data pointed to by a <code class="language-plaintext highlighter-rouge">T new&amp;</code> is treated as logically uninitialized.</strong></p>
+
+<p>in essence, the initializing reference is a “write-only” reference - at least, until it’s been written to at least once. once the referenced data has been properly initialized, the reference becomes functionally identical to a <code class="language-plaintext highlighter-rouge">T mut&amp;</code>.</p>
+
+<h2 id="anyway-lets-talk-about-types">anyway let’s talk about types</h2>
+
+<p>comune’s type system is pretty powerful. real quick, here’s every kind of type in the language:</p>
+
+<ul>
+  <li>basic types (<code class="language-plaintext highlighter-rouge">int</code>, <code class="language-plaintext highlighter-rouge">float</code>, etc)</li>
+  <li>pointers (<code class="language-plaintext highlighter-rouge">T*</code>, <code class="language-plaintext highlighter-rouge">T mut*</code>)</li>
+  <li>function pointers (i.e. <code class="language-plaintext highlighter-rouge">void(int,int)*</code>)</li>
+  <li>arrays (<code class="language-plaintext highlighter-rouge">T[n]</code>)</li>
+  <li>slices (<code class="language-plaintext highlighter-rouge">T[]</code>)</li>
+  <li>“product” tuples (<code class="language-plaintext highlighter-rouge">(T, U, V)</code>)</li>
+  <li>“sum” tuples (<code class="language-plaintext highlighter-rouge">(T | U | V)</code>)</li>
+  <li>the newtype (<code class="language-plaintext highlighter-rouge">(T)</code>)</li>
+  <li>the void type (<code class="language-plaintext highlighter-rouge">void</code>)</li>
+  <li>the never type (<code class="language-plaintext highlighter-rouge">never</code>)</li>
+  <li>classes, with inheritance</li>
+  <li>structs/enums, without inheritance</li>
+</ul>
+
+<p>that’s quite a list! some of these are pretty obvious, but others deserve some elaboration.</p>
+
+<h3 id="sum-tuples">sum tuples</h3>
+
+<p>“sum tuples” are my probably-technically-incorrect nickname for comune’s structural sum type. sum types are like <code class="language-plaintext highlighter-rouge">union</code>s in C++ and <code class="language-plaintext highlighter-rouge">enum</code>s in Rust, in that they represent “one of the above”, in contrast to product types (i.e. <code class="language-plaintext highlighter-rouge">struct</code>s) which represent “all of the above”.</p>
+
+<p>for instance, a type <code class="language-plaintext highlighter-rouge">(int | float)</code> is either an int <em>or</em> a float. to find out which it is, we can use <code class="language-plaintext highlighter-rouge">match</code>:</p>
+
+<div class="log"><details open="true"><summary><span>Hide code</span></summary>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// where `my_sum_tuple` is of type (int | float)</span>
+<span class="n">match</span> <span class="n">my_sum_tuple</span> <span class="p">{</span>
+	<span class="kt">int</span> <span class="n">i</span> <span class="o">=&gt;</span> <span class="n">printf</span><span class="p">(</span><span class="n">c</span><span class="s">"It's an int!: %i</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+
+	<span class="kt">float</span> <span class="n">f</span> <span class="o">=&gt;</span> <span class="n">printf</span><span class="p">(</span><span class="n">c</span><span class="s">"It's a float!: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span>
+<span class="p">};</span>
+</code></pre></div></div>
+</details></div>
+
+<h3 id="the-newtype">the newtype</h3>
+<p>the newtype is a transparent wrapper over an existing type. it can be used to discern between values with different purposes that nonetheless all share the same underlying type. a typical example is preventing mixups between a Days type and a Years type:</p>
+
+<div class="log"><details open="true"><summary><span>Hide code</span></summary>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">type</span> <span class="nf">Days</span><span class="p">(</span><span class="n">u32</span><span class="p">);</span>
+<span class="n">type</span> <span class="nf">Years</span><span class="p">(</span><span class="n">u32</span><span class="p">);</span>
+
+<span class="c1">// You can write impls on newtypes, </span>
+<span class="c1">// "overriding" the underlying type's impls</span>
+
+<span class="n">impl</span> <span class="n">Days</span> <span class="p">{</span>
+	<span class="n">Years</span> <span class="n">to_years</span><span class="p">(</span><span class="o">&amp;</span><span class="n">self</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">Years</span><span class="p">(</span><span class="n">self</span> <span class="o">/</span> <span class="mi">365</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span> <span class="nf">old_enough</span><span class="p">(</span><span class="n">Years</span><span class="o">&amp;</span> <span class="n">age</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">age</span> <span class="o">&gt;=</span> <span class="mi">10</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+</details></div>
+
+<p>logically, creating a newtype can be considered a limited form of inheritance. the newtype inherits all the impls of the base type, while allowing the user to statically override them.</p>
+
+<p>(worth noting: i have some unresolved concerns about the soundness of this concept, so don’t consider it set in stone. I Just Think They’re Neat)</p>
+
+<h3 id="the-never-type">the never type</h3>
+<p><code class="language-plaintext highlighter-rouge">never</code> is the type of an expression that never completes. this is roughly equivalent to <code class="language-plaintext highlighter-rouge">noreturn</code> in C++, and ironically, it’s the type of the <code class="language-plaintext highlighter-rouge">return</code> expression (because any code after a <code class="language-plaintext highlighter-rouge">return</code> never gets executed!)</p>
+
+<p>the <code class="language-plaintext highlighter-rouge">never</code> type coerces to every other type, because can never produce a wrong value. this has some really nice ergonomic effects, like letting you put a <code class="language-plaintext highlighter-rouge">return</code> anywhere and having it easily typecheck. in type theory, this is known as the <a href="https://en.wikipedia.org/wiki/Bottom_type">bottom type</a>, but i am NOT calling it that are you CRAZY</p>
+
+<h3 id="classesstructsenums">classes/structs/enums</h3>
+
+<p>if you’re reading this i hope to god you know what structs, classes and enums are.</p>
+
+<p>structs are your typical product type. you define struct bodies with typical C-style syntax, and their methods inside <code class="language-plaintext highlighter-rouge">impl</code> blocks. pretty straight-forward!</p>
+
+<p>classes are A Planned Feature, mostly for C++ compatibility, but also because they possess genuinely useful capabilities that i’d like the language to have. but yeah, this feature isn’t really fleshed out whatsoever, don’t @ me</p>
+
+<p>and enums are the spiciest of all. if you know Rust, these’ll be familiar to you, but there’s still some surprises in store.</p>
+
+<div class="log"><details open="true"><summary><span>Hide code</span></summary>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Enums can have payloads, making them</span>
+<span class="c1">// the nominal equivalent to "sum tuples"</span>
+<span class="k">enum</span> <span class="n">MyCoolEnum</span> <span class="p">{</span>
+	<span class="n">VariantA</span><span class="p">(</span><span class="n">u16</span><span class="p">,</span> <span class="n">u16</span><span class="p">),</span>
+	<span class="n">VariantB</span><span class="p">(</span><span class="n">u32</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1">// WHUH?????????????????????</span>
+<span class="kt">int</span> <span class="nf">sum_variant_a</span><span class="p">(</span><span class="n">MyCoolEnum</span><span class="o">::</span><span class="n">VariantA</span><span class="o">&amp;</span> <span class="n">variant</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">variant</span><span class="mf">.0</span> <span class="o">+</span> <span class="n">variant</span><span class="mf">.1</span>
+<span class="p">}</span>
+</code></pre></div></div>
+</details></div>
+<p>THAT’S RIGHT BABY!!!! EVERY ENUM VARIANT IS A TYPE IN ITS OWN RIGHT!!!! GOd am i proud of this feature.</p>
+
+<p>can you tell i’ve been writing this post for hours on end? anyway yeah final note: unlike Rust, user-defined types have support for both constructors and destructors, with the following syntax:</p>
+
+<div class="log"><details open="true"><summary><span>Hide code</span></summary>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="nc">MyCoolStruct</span> <span class="p">{</span>
+	<span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">b</span><span class="p">;</span>
+
+	<span class="c1">// note that unlike regular methods,</span>
+	<span class="c1">// these are defined in the type body.</span>
+	<span class="c1">// this is mostly for annoying technical reasons.</span>
+
+	<span class="c1">// `new&amp;` is a special kind of binding,</span>
+	<span class="c1">// letting you safely handle uninitialized data</span>
+	<span class="k">new</span><span class="p">(</span><span class="k">new</span><span class="o">&amp;</span> <span class="n">self</span><span class="p">,</span> <span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">self</span><span class="p">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>
+		<span class="n">self</span><span class="p">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="p">;</span>
+	<span class="p">}</span>
+
+	<span class="n">drop</span><span class="p">(</span><span class="n">mut</span><span class="o">&amp;</span> <span class="n">self</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">printf</span><span class="p">(</span><span class="n">c</span><span class="s">"MyCoolType has been dropped!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="c1">// `new` is just the constructor keyword,</span>
+	<span class="c1">// it doesn't imply dynamic allocation</span>
+	<span class="n">MyCoolStruct</span> <span class="n">a</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MyCoolStruct</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+	
+	<span class="c1">// If you have access to all the fields,</span>
+	<span class="c1">// you can also use a literal constructor</span>
+	<span class="n">MyCoolStruct</span> <span class="n">b</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MyCoolStruct</span> <span class="p">{</span>
+		<span class="nl">a:</span> <span class="mi">0</span><span class="p">,</span>
+		<span class="nl">b:</span> <span class="mi">0</span><span class="p">,</span>
+	<span class="p">};</span>
+
+	<span class="c1">// You can even perform in-place construction!</span>
+	<span class="n">MyCoolStruct</span> <span class="n">c</span><span class="p">;</span>
+
+	<span class="k">new</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="n">MyCoolStruct</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+</details></div>
+
+<h2 id="generics-and-traits">generics and traits</h2>
+
+<p>one of the primary motivations behind the creation of comune was to improve upon Rust’s generics and traits in terms of flexibility. <a href="https://github.com/rust-lang/rfcs/pull/1210">specialization</a>, for instance, is a long-requested feature that Rust has so far been unable to stabilize, largely due to technical issues and poor interactions with other language features leading to unsoundness. one of my main goals is to <del>blow up</del> take the foundation that Rust’s generics laid out, and expand upon them to approach the flexibility of C++’s templates.</p>
+
+<p>The basic generics syntax is as follows:</p>
+
+<div class="log"><details open="true"><summary><span>Hide code</span></summary>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Generics can be used in the return type, </span>
+<span class="c1">// even before their declaration</span>
+<span class="n">T</span> <span class="n">foo</span><span class="o">&lt;</span><span class="n">type</span> <span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="k">struct</span> <span class="nc">GenericStruct</span><span class="o">&lt;</span><span class="n">type</span> <span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+	<span class="n">T</span> <span class="n">cool_generic_member</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">impl</span><span class="o">&lt;</span><span class="n">type</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">GenericStruct</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+
+	<span class="n">T</span><span class="o">&amp;</span> <span class="n">get</span><span class="p">(</span><span class="o">&amp;</span><span class="n">self</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">self</span><span class="p">.</span><span class="n">cool_generic_member</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+</details></div>
+
+<h2 id="miscellanea">miscellanea</h2>
+<p>here’s some cool stuff i couldn’t naturally fit in anywhere else:</p>
+
+<ul>
+  <li>
+    <p>declarations are order-independent, as they damn well oughta be</p>
+  </li>
+  <li>
+    <p>after a long, gruelling fight, comune’s <a href="https://turbo.fish/">turbofish</a> has been struck down. when encountering the relevant syntactic ambiguity (i.e. <code class="language-plaintext highlighter-rouge">(a&lt;b, c&gt;(d))</code>), the parser will default to disambiguating it as a generic function call; if you meant to write a tuple literal, putting braces around <code class="language-plaintext highlighter-rouge">a&lt;b</code> or <code class="language-plaintext highlighter-rouge">c&gt;(d)</code> will make it parse correctly.</p>
+  </li>
+  <li>
+    <p>the design of comune’s reference semantics was partially based on <a href="https://faultlore.com/blah/fix-rust-pointers/#offsets-and-places-are-a-mess">the difficulties of dealing with unsafe pointers in Rust</a>; as it turns out, having <a href="https://doc.rust-lang.org/stable/std/ptr/macro.addr_of.html">no core-language way to create a pointer without using references</a> Kind Of Sucks!</p>
+  </li>
+  <li>
+    <p>“comune” is an italian word roughly translating to “township”, but the choice of name mostly stems from “communing” with C++, the desire to foster a good community (if this thing goes anywhere), and the inherent Funny Value of being able to call myself a <em>comunist</em> [sic]. side note: as far as i’m concerned, the name is stylized in all-lowercase.</p>
+  </li>
+</ul>
+
+<h2 id="compiler-progress">compiler progress</h2>
+
+<p>so that’s all well and good, but how much of this is actually <em>implemented</em>, and not just fancy talk from some smartass on the internet?</p>
+
+<p>well, a solid amount! in fact, it might be easier to list what’s <em>not</em> yet ready, off the top of my head:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">impl</code> blocks currently don’t propagate across modules, severely limiting their usability. (this is what i’m working on at time of writing)</li>
+  <li>although the basic dataflow analysis framework is functional, borrowchecking is still limited to simply ensuring variable initialization before use, with no support for shared-xor-mutable checks just yet.</li>
+  <li>pattern matching is half-implemented, with no exhaustiveness checks and brittle cIR generation. also nothing beyond basic bindings is implemented like At All</li>
+  <li>sum types have decent support, but enums are still pretty much non-functional</li>
+  <li>dynamic drop is partially implemented, but doesn’t yet take scope ends, <code class="language-plaintext highlighter-rouge">break</code> or <code class="language-plaintext highlighter-rouge">continue</code> into account. this is mostly a matter of</li>
+  <li><code class="language-plaintext highlighter-rouge">for</code> is just your basic C-style <code class="language-plaintext highlighter-rouge">for</code> loop right now, and i want to replace it with a proper iterator system at some point.</li>
+  <li>constant evaluation only works in trivial cases right now, and i’ve been meaning to rewrite it with a proper IR interpreter.</li>
+  <li>the basic monomorphization system works, but the cIR phase doesn’t yet (have the ability to) redo overload resolution for function instantiations, which will inevitably lead to Trouble (the way generics interact with function overloading is pretty vague in general)</li>
+  <li>although function pointers are implemented, actually taking the address of a function doesn’t currently work</li>
+  <li>name resolution is kind of a mess but it works</li>
+  <li>still really need a proper reborrowing system for <code class="language-plaintext highlighter-rouge">T mut&amp;</code></li>
+  <li>c++ interop? hahahahahahahahahahahahahahaha i mean you can import a cpp file and call an extremely simple comune function from c++ (NOT the other way around) using some extremely hacked together bullshit! if you want!</li>
+  <li>we still need a whole-ass trait solver oh my God</li>
+  <li>probably like a billion other small things i’m forgetting</li>
+</ul>
+
+<p>i hope this paints a decent picture of the state of the compiler; a LOT of things work, and a lot of things still don’t, and while some aspects of the language are still vaguely-defined, there’s also a lot that you can experiment with right now. we’re not quite there yet, but the language is closer to an 0.1 release than i honestly ever assumed it would be, and if the language as described in this blog post intrigues or excites you, we’d love for you to <a href="https://github.com/comune-lang/comune">come help out</a>.</p>
+
+<p>despite the semi-hobbyist way i described the language at the start of this blog post, the reason i’ve worked on comune for so long is because i genuinely believe it’s a promising project, and i hope you agree. thanks for reading!</p>
+
+		</div>
+	</div>
+</div>
+
+</div>
+
+			<div class="footer">
+				<img src="/assets/images/mspalogo_mspa.png" title="if you know, you know."/>
+				<span id="footer-text" style="line-height: 80px;"><i></i></span>
+				<img src="/assets/images/mspalogo_mspa.png" title="if you know, you know."/>
+			</div>
+			<script>			
+				let footer_lines = [
+					"do i have \"retro swag\" yet?",
+					"now *that's* what i call ash taylor.",
+					"i wrote this website in like three hours, and yet here i am, adding footer gags.",
+					"I Can't Believe It's Not MS Paint Adventures!",
+					"*really* banking on my bizarre sense of humor landing with potential employers.",
+					"who needs a web framework when you have HTML, CSS and ADHD?",
+					"those are some top-tier CHORDIOIDs you got there.",
+					"really digging the Web 1.0 aesthetic lately. hard to tell, i know.",
+				]
+
+				document.getElementById("footer-text").innerHTML = "<i>\"" + footer_lines[Math.floor(Math.random()*footer_lines.length)] + "\"</i>"
+
+				// Code block button code
+				function toggle_log() {
+					
+				}
+				var details = document.querySelectorAll("details")
+
+				details.forEach((item) => {
+					item.addEventListener("toggle", function() {
+					let log = item.firstChild;
+
+					if (log.innerText.slice(0, 4) == "Show") {
+						log.innerHTML = "<span>Hide" + log.innerText.slice(4) + "</span>";
+					} else {
+						log.innerHTML = "<span>Show" + log.innerText.slice(4) + "</span>";
+					}
+				})
+			});
+			</script>
+		</div>
+	</body>
+</html>

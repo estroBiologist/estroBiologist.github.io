@@ -1,0 +1,19 @@
+---
+layout: default
+---
+<div id="page-content" class="main-item">
+	<div style="padding: 0px 50px;">
+		<h2><i>{{ page.title }}</i></h2>
+
+		{% assign wordCount = content | number_of_words %}
+
+		<p><i>{{ page.date | date_to_string | downcase }} - {{ wordCount | divided_by: 180 }} min read</i></p>
+
+		<img src="{{ page.image }}"/>
+
+		<div id="post-content">
+			{{ content }}
+		</div>
+	</div>
+</div>
+

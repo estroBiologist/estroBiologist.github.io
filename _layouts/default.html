@@ -1,0 +1,70 @@
+<html>
+	<head>
+		<title>{{ page.title }} - ash taylor?!</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,300;0,400;0,600;0,700;0,900;1,300;1,400;1,600;1,900&display=swap" rel="stylesheet"> 
+		<link rel="stylesheet" href="/assets/css/styles.css">
+	</head>
+
+	<body>
+		<style>
+		body {
+			background-image: url("/assets/images/starrysky.png");
+		}
+		</style>
+
+		<div class="content">
+			<div class="header"><h1>ash taylor?!</h1></div>
+
+			<ul class="navbar"><!-- 
+					These comments prevent the newline from being collapsed
+					into whitespace. Makes it look a little nicer.
+				--><li><a href="/">home</a></li><!--
+				--><li><a href="/projects">projects</a></li><!--
+				--><li><a href="/blog">blog</a></li><!--
+				--><li><a href="/contact">contact</a></li>
+			  </ul>
+
+			<div class="main">{{ content }}</div>
+
+			<div class="footer">
+				<img src="/assets/images/mspalogo_mspa.png" title="if you know, you know."/>
+				<span id="footer-text" style="line-height: 80px;"><i></i></span>
+				<img src="/assets/images/mspalogo_mspa.png" title="if you know, you know."/>
+			</div>
+			<script>			
+				let footer_lines = [
+					"do i have \"retro swag\" yet?",
+					"now *that's* what i call ash taylor.",
+					"i wrote this website in like three hours, and yet here i am, adding footer gags.",
+					"I Can't Believe It's Not MS Paint Adventures!",
+					"*really* banking on my bizarre sense of humor landing with potential employers.",
+					"who needs a web framework when you have HTML, CSS and ADHD?",
+					"those are some top-tier CHORDIOIDs you got there.",
+					"really digging the Web 1.0 aesthetic lately. hard to tell, i know.",
+				]
+
+				document.getElementById("footer-text").innerHTML = "<i>\"" + footer_lines[Math.floor(Math.random()*footer_lines.length)] + "\"</i>"
+
+				// Code block button code
+				function toggle_log() {
+					
+				}
+				var details = document.querySelectorAll("details")
+
+				details.forEach((item) => {
+					item.addEventListener("toggle", function() {
+					let log = item.firstChild;
+
+					if (log.innerText.slice(0, 4) == "Show") {
+						log.innerHTML = "<span>Hide" + log.innerText.slice(4) + "</span>";
+					} else {
+						log.innerHTML = "<span>Show" + log.innerText.slice(4) + "</span>";
+					}
+				})
+			});
+			</script>
+		</div>
+	</body>
+</html>
