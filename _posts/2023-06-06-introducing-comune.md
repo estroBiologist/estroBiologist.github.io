@@ -21,7 +21,7 @@ over the past year or two, it's become increasingly clear that C++ is simply not
 
 to be clear: as a former C++ evangelist, i think Rust is great, and nowadays i use it wherever possible - but i feel it's held back by some of its early design decisions, as well as being unnecessarily complex in places. it does sometimes leave me yearning for the "anything goes" mentality of C++ - even if Rust is significantly more reliable and user-friendly in the long run.
 
-there've been a lot of attempts to replace C++, but none so far have really grabbed me. [Carbon](https://github.com/carbon-language/carbon-lang) doesn't really do it for me; the more i read into it, the more arbitrary its design decisions feel. no disrespect to the people working on it, of course - i'm sure they're far more experienced in the field than i am - but for me, it just doesn't really come together into something i can get excited about. 
+there've been a lot of attempts to replace C++, but none so far have really grabbed me. [Carbon](https://github.com/carbon-language/carbon-lang) doesn't really do it for me; the more i read into it, the more arbitrary its design decisions feel. no disrespect to the people working on it, of course - heck, i'm sure they're far more experienced in the field than i am - but for me, it just doesn't really come together into something i can get excited about. 
 
 it's a similar story for the other endeavours. maybe it's just me being stubborn (i'm pretty sure Carbon got announced just weeks after i had the initial idea for comune, lol) but i still felt motivated to give it a shot myself.
 
@@ -37,7 +37,7 @@ but hey, i'm getting ahead of myself. let's go over what comune actually *is*:
 
 comune is a compiled, general-purpose programming language with a focus on performance, ergonomics, safety and C++ interop. it offers features like the following:
 
-- a clean, expression-based syntax, styled after C++, but with the fat trimmed
+- a clean, expression-based syntax, roughly styled after C++
 - parametric polymorphism through traits
 - support for function overloads and specialization
 - first-class tuples and sum types
