@@ -340,7 +340,7 @@ well, a solid amount! in fact, it might be easier to list what's *not* yet ready
 - although the basic dataflow analysis framework is functional, borrowchecking is still limited to simply ensuring variable initialization before use, with no support for shared-xor-mutable checks just yet.
 - pattern matching is half-implemented, with no exhaustiveness checks and brittle cIR generation. also nothing beyond basic bindings is implemented like At All
 - sum types have decent support, but enums are still pretty much non-functional 
-- dynamic drop is partially implemented, but doesn't yet take scope ends, `break` or `continue` into account. this is mostly a matter of
+- dynamic drop is partially implemented, but doesn't yet take scope ends, `break` or `continue` into account. this is mostly a matter of just adding these cases to the relevant part of the compiler, but it's worth pointing out for those experimenting with user-defined types.
 - `for` is just your basic C-style `for` loop right now, and i want to replace it with a proper iterator system at some point.
 - constant evaluation only works in trivial cases right now, and i've been meaning to rewrite it with a proper IR interpreter.
 - the basic monomorphization system works, but the cIR phase doesn't yet (have the ability to) redo overload resolution for function instantiations, which will inevitably lead to Trouble (the way generics interact with function overloading is pretty vague in general)
