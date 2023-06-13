@@ -7,7 +7,7 @@ layout: default
 
 		{% assign wordCount = content | number_of_words %}
 
-		<p><i>{{ page.date | date_to_string | downcase }} - {{ wordCount | divided_by: 180 }} min read</i></p>
+		<p><i>{{ page.date | date: "%B %-d, %Y" | downcase }} - {{ wordCount | divided_by: 180 }} min read</i></p>
 
 		<img src="{{ page.image }}"/>
 

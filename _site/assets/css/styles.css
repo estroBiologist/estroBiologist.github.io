@@ -104,12 +104,13 @@ ul {
   width: 100px;
   height: 100px;
   margin-right: 10px;
-  margin-top: auto;
-  margin-bottom: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .post-link {
   text-align: left;
+  align-items: center;
   font-size: 16px;
   display: flex;
   flex-flow: row nowrap;
@@ -117,16 +118,25 @@ ul {
   padding: 10px;
   border-radius: 10px;
 }
+.post-link h3 {
+  margin-top: 0px;
+}
 .post-link span {
   color: #acacac;
 }
 .post-link p {
   margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.post-link-sub {
+  font-weight: 100;
+  color: #acacac;
 }
 
 .navbar li {
   display: inline-block;
-  width: 24%;
+  width: 25%;
   text-align: center;
   text-shadow: 0 0 10px black;
   font-weight: 600;
