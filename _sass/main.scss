@@ -54,9 +54,14 @@ b {
 }
 
 #post-content img {
+	max-width: 100%;
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
+}
+
+.footnote {
+	font-size: 13px;
 }
 
 h1 {
